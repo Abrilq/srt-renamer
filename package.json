@@ -10,9 +10,9 @@
     "postinstall": "chmod +x node_modules/.bin/* 2>/dev/null || true"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@vercel/analytics": "^1.6.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",

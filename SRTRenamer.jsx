@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import './SRTRenamer.css';
+import { Analytics } from "@vercel/analytics/react"
 
 export default function SRTRenamer() {
   const [files, setFiles] = useState([]);
