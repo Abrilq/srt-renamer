@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 
 export default function App() {
@@ -101,6 +102,7 @@ export default function App() {
       />
       <button onClick={handleRename}>Rename and Download</button>
       <p>{fileCount}</p>
+      <Analytics />
     </div>
   );
 }
