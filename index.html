@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRT File Batch Renamer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            border: 2px dashed #007bff;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container.dragging {
+            background-color: #e0f7ff;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 90%;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="dropArea">
+        <h1>Drop SRT Files Here</h1>
+        <input type="text" id="firstPart" placeholder="Enter first part of the file name" />
+        <input type="text" id="increment" placeholder="Enter increment for episode and season (e.g., S02E01)" />
+        <input type="text" id="lastPart" placeholder="Enter last part of the file name" />
+        <button id="renameButton">Rename and Download</button>
+        <p id="fileCount">No files dropped yet.</p>
+    </div>
+
+    <script>
+        const dropArea = document.getElementById('dropArea');
+        const renameButton = document.getElementById('renameButton');
+        const firstPartInput = document.getElementById('firstPart');
+        const incrementInput = document.getElementById('increment');
+        const lastPartInput = document.getElementById('lastPart');
+        const fileCountText = document.getElementById('fileCount');
+        let files = [];
+
+        // Drag and drop events
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragging');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragging');
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragging');
+
+            files = Array.from(e.dataTransfer.files).filter(file => file.name.endsWith('.srt'));
+
+            if (files.length > 0) {
+                fileCountText.textContent = `${files.length} SRT file(s) ready for renaming.`;
+            } else {
+                fileCountText.textContent = "No valid SRT files dropped.";
+            }
+        });
+
+        renameButton.addEventListener('click', () => {
+            const firstPart = firstPartInput.value; // No trimming
+            const increment = incrementInput.value; // No trimming
+            const lastPart = lastPartInput.value; // No trimming
+
+            if (files.length === 0) {
+                alert('Please drop some SRT files first.');
+                return;
+            }
+
+            // Removed the check for empty inputs
+            files.forEach((file, index) => {
+                const incrementMatch = increment.match(/S(\d+)E(\d+)/);
+                if (!incrementMatch) {
+                    alert('Increment format must be like S02E01');
+                    return;
+                }
+
+                const seasonNumber = incrementMatch[1];
+                const startingEpisode = parseInt(incrementMatch[2], 10);
+                const currentEpisode = String(startingEpisode + index).padStart(2, '0');
+
+                const seasonEpisode = `S${seasonNumber}E${currentEpisode}`;
+                const newFileName = `${firstPart}${seasonEpisode}${lastPart}.srt`;
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+                    const blob = new Blob([fileContent], { type: 'text/plain' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = newFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+
+                reader.readAsText(file);
+            });
+        });
+    </script>
+</body>
+</html>
